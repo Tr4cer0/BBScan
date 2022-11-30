@@ -68,6 +68,8 @@ def parse_args():
 
     group_other.add_argument('-md', default=False, action='store_true',
                              help='Save scan report as markdown format')
+    group_other.add_argument('-out', metavar='DestFile', dest='dest_file', type=str, default='',
+                             help='Save reports to DestFile')
 
     group_other.add_argument('--save-ports', metavar='PortsDataFile', dest='save_ports', type=str, default='',
                              help='Save open ports to PortsDataFile')

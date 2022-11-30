@@ -104,6 +104,8 @@ async def save_report(args, q_results, _file):
     report_name = '%s_%s%s' % (os.path.basename(_file).lower().replace('.txt', ''),
                                time.strftime('%Y%m%d_%H%M%S', time.localtime()),
                                output_file_suffix)
+    if args.dest_file:
+        report_name = args.dest_file
 
     html_doc = content = ""
     vulnerable_hosts_count = 0

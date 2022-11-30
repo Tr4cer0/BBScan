@@ -109,7 +109,7 @@ async def save_report(args, q_results, _file):
         report_name = args.dest_file
 
     html_doc = content = ""
-    json_docs = []
+    json_docs = {}
     vulnerable_hosts_count = 0
     console_width = getTerminalSize()[0] - 2
 
@@ -131,6 +131,8 @@ async def save_report(args, q_results, _file):
                     continue
                 host, results = item
                 vulnerable_hosts_count += 1
+                if host not in json_docs:
+                    json_docs[host] = []
 
                 # print
                 for key in results.keys():
@@ -145,7 +147,7 @@ async def save_report(args, q_results, _file):
                              'title': '[%s]' % _['title'] if _['title'] else '',
                              'vul_type': escape(_['vul_type'].replace('_', ' ')) if 'vul_type' in _ else ''}
                         _str += t_list_item.substitute(dict_item)
-                        json_docs.append(json.dumps(dict_item))
+                        json_docs[host].append(dict_item)
 
                 _str = t_host.substitute({'host': host, 'list': _str})
                 content += _str
@@ -181,8 +183,7 @@ async def save_report(args, q_results, _file):
             )
 
             with codecs.open('report/%s' % report_name, 'w', encoding='utf-8') as outFile:
-                #outFile.write(html_doc)
-                outFile.write("\n".join(json_docs))
+                outFile.write(json.dumps(json_docs))
 
             print('\n* %s vulnerable targets on sites in total.' % vulnerable_hosts_count)
             print('* Scan report saved to report/%s' % report_name)

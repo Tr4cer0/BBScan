@@ -8,6 +8,7 @@ import webbrowser
 import sys
 import codecs
 import os
+import json
 from lib.common import escape
 from lib.consle_width import getTerminalSize
 import lib.config as conf
@@ -108,6 +109,7 @@ async def save_report(args, q_results, _file):
         report_name = args.dest_file
 
     html_doc = content = ""
+    json_docs = []
     vulnerable_hosts_count = 0
     console_width = getTerminalSize()[0] - 2
 
@@ -138,12 +140,13 @@ async def save_report(args, q_results, _file):
                 _str = ""
                 for key in results.keys():
                     for _ in results[key]:
-                        _str += t_list_item.substitute(
-                            {'status': ' [%s]' % _['status'] if _['status'] else '',
+                        dict_item = {'status': ' [%s]' % _['status'] if _['status'] else '',
                              'url': _['url'],
                              'title': '[%s]' % _['title'] if _['title'] else '',
                              'vul_type': escape(_['vul_type'].replace('_', ' ')) if 'vul_type' in _ else ''}
-                        )
+                        _str += t_list_item.substitute(dict_item)
+                        json_docs.append(json.dumps(dict_item))
+
                 _str = t_host.substitute({'host': host, 'list': _str})
                 content += _str
 
@@ -178,7 +181,8 @@ async def save_report(args, q_results, _file):
             )
 
             with codecs.open('report/%s' % report_name, 'w', encoding='utf-8') as outFile:
-                outFile.write(html_doc)
+                #outFile.write(html_doc)
+                outFile.write("\n".join(json_docs))
 
             print('\n* %s vulnerable targets on sites in total.' % vulnerable_hosts_count)
             print('* Scan report saved to report/%s' % report_name)

@@ -142,10 +142,14 @@ async def save_report(args, q_results, _file):
                 _str = ""
                 for key in results.keys():
                     for _ in results[key]:
-                        dict_item = {'status': int(_['status']) if _['status'] else 0,
-                             'url': _['url'],
-                             'title': '[%s]' % _['title'] if _['title'] else '',
-                             'vul_type': escape(_['vul_type'].replace('_', ' ')) if 'vul_type' in _ else ''}
+                        dict_item = {
+                            'status': int(_['status']) if _['status'] else 0,
+                            'url': _['url'],
+                            'title': '[%s]' % _['title'] if _['title'] else '',
+                            'vul_type': escape(_['vul_type'].replace('_', ' ')) if 'vul_type' in _ else '',
+                            'content_type': _['content_type'],
+                            'content_length': _['content_length']
+                        }
                         _str += t_list_item.substitute(dict_item)
                         json_docs[host].append(dict_item)
 

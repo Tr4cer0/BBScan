@@ -574,8 +574,14 @@ class Scanner(object):
                         # '[+] [Prefix:%s] [%s] %s' % (prefix, status, 'http://' + self.host +  url))
                         if prefix not in self.results:
                             self.results[prefix] = []
-                        _ = {'status': status, 'url': '%s%s' % (self.base_url, url),
-                             'title': title, 'vul_type': vul_type}
+                        _ = {
+                            'status': status,
+                            'url': '%s%s' % (self.base_url, url),
+                            'title': title,
+                            'vul_type': vul_type,
+                            'content_type': cur_content_type,
+                            'content_length': cur_content_length
+                        }
                         if _ not in self.results[prefix]:
                             self.results[prefix].append(_)
 

@@ -147,8 +147,8 @@ async def save_report(args, q_results, _file):
                             'url': _['url'],
                             'title': '[%s]' % _['title'] if _['title'] else '',
                             'vul_type': escape(_['vul_type'].replace('_', ' ')) if 'vul_type' in _ else '',
-                            'content_type': _['content_type'],
-                            'content_length': _['content_length']
+                            'content_type': _['content_type'] if 'content_type' in _ else '',
+                            'content_length': _['content_length'] if 'content_length' in _ else ''
                         }
                         _str += t_list_item.substitute(dict_item)
                         json_docs[host].append(dict_item)

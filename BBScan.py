@@ -236,6 +236,7 @@ class Scanner(object):
         self.rules_set_root_only = set()
 
         p_tag = re.compile('{tag="(.*?)"}')
+        p_tag_no = re.compile('{tag_no="(.*?)"}')
         p_status = re.compile(r'{status=(\d{3})}')
         p_content_type = re.compile('{type="(.*?)"}')
         p_content_type_no = re.compile('{type_no="(.*?)"}')
@@ -251,6 +252,9 @@ class Scanner(object):
                         _ = p_tag.search(url)
                         tag = _.group(1) if _ else ''
 
+                        _ = p_tag_no.search(url)
+                        tag_no = _.group(1) if _ else ''
+
                         _ = p_status.search(url)
                         status = int(_.group(1)) if _ else 0
 
@@ -262,7 +266,7 @@ class Scanner(object):
 
                         root_only = True if url.find('{root_only}') >= 0 else False
 
-                        rule = (url.split()[0], tag, status, content_type, content_type_no, root_only, vul_type)
+                        rule = (url.split()[0], tag, tag_no, status, content_type, content_type_no, root_only, vul_type)
                         if root_only:
                             if rule not in self.rules_set_root_only:
                                 self.rules_set_root_only.add(rule)
@@ -399,7 +403,7 @@ class Scanner(object):
                 rule_set_to_process = [self.rules_set, self.rules_set_root_only] if url == '/' else [self.rules_set]
                 for rule_set in rule_set_to_process:
                     for _ in rule_set:
-                        if _[5] and url != '/':    # root only
+                        if _[6] and url != '/':    # root only
                             continue
                         try:
                             full_url = url.rstrip('/') + _[0]
@@ -408,7 +412,7 @@ class Scanner(object):
                         if full_url in self.urls_enqueued:
                             continue
                         url_description = {'prefix': url.rstrip('/'), 'full_url': full_url}
-                        item = (url_description, _[1], _[2], _[3], _[4], _[5], _[6])
+                        item = (url_description, _[1], _[2], _[3], _[4], _[5], _[6], _[7])
                         await self.url_queue.put(item)
                         self.urls_enqueued.add(full_url)
 
@@ -504,7 +508,7 @@ class Scanner(object):
                     # await self.print_msg('End %s %s' % (os.path.basename(item[0].__file__), item[1]))
                     continue
                 else:
-                    url_description, tag, status_to_match, content_type, content_type_no, root_only, vul_type = item
+                    url_description, tag, tag_no, status_to_match, content_type, content_type_no, root_only, vul_type = item
                     prefix = url_description['prefix']
                     url = url_description['full_url']
 
@@ -541,6 +545,9 @@ class Scanner(object):
                 if content_type and cur_content_type.find(content_type) < 0 \
                         or content_type_no and cur_content_type.find(content_type_no) >= 0:
                     continue    # content type mismatch
+
+                if tag_no and html_doc.find(tag_no) >= 0:
+                    continue    # tag_no match
 
                 if tag and html_doc.find(tag) < 0:
                     continue    # tag mismatch
